@@ -13,12 +13,14 @@ public class CommandExecutor {
     private final Method executor;
     private final boolean executeAsync;
     private final int requiredArgs;
+    private final String requiredPermission;
     private final ArgumentInjector<?>[] arguments;
 
-    public CommandExecutor(Object commandClass, Method executor, boolean executeAsync, ArgumentInjector<?>[] arguments) {
+    public CommandExecutor(Object commandClass, Method executor, boolean executeAsync, String requiredPermission, ArgumentInjector<?>[] arguments) {
         this.commandClass = commandClass;
         this.executor = executor;
         this.executeAsync = executeAsync;
+        this.requiredPermission = requiredPermission;
         this.arguments = arguments;
         this.requiredArgs = this.calculateRequiredArgs();
     }
@@ -31,6 +33,14 @@ public class CommandExecutor {
         }
 
         return this.arguments.length;
+    }
+
+    public boolean canExecute(ICommandSender sender) {
+        if (this.requiredPermission == null || this.requiredPermission.isEmpty()) {
+            return true;
+        }
+
+        return sender.canUseCommand(4, this.requiredPermission);
     }
 
     public boolean isExecuteAsync() {
