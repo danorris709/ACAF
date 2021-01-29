@@ -6,8 +6,18 @@ import com.envyful.acaf.api.command.Command;
 import com.envyful.acaf.api.command.Permissible;
 import com.envyful.acaf.api.command.SubCommands;
 import com.envyful.acaf.api.exception.CommandLoadException;
+import com.envyful.acaf.api.injector.ArgumentInjector;
+import com.envyful.acaf.impl.injector.SupplierInjector;
+import com.google.common.collect.Lists;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.function.Supplier;
 
 public class ForgeCommandFactory implements CommandFactory {
+
+    private final List<ArgumentInjector> registeredInjectors = Lists.newArrayList();
 
     @Override
     public boolean registerCommand(Object o) throws CommandLoadException {
@@ -53,5 +63,23 @@ public class ForgeCommandFactory implements CommandFactory {
     @Override
     public boolean unregisterCommand(Object o) {
         return false;
+    }
+
+    @Override
+    public void registerInjector(Class<?> parentClass, Supplier<?> supplier) {
+        this.registeredInjectors.add(new SupplierInjector(parentClass, supplier));
+    }
+
+    @Override
+    public void unregisterInjector(Class<?> parentClass) {
+        Iterator<ArgumentInjector> iterator = (Iterator<ArgumentInjector>) this.registeredInjectors.iterator();
+
+        while (iterator.hasNext()) {
+            ArgumentInjector next = iterator.next();
+
+            if (Objects.equals(parentClass, next.getSuperClass())) {
+                iterator.remove();
+            }
+        }
     }
 }
