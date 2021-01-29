@@ -1,6 +1,7 @@
 package com.envyful.acaf.api;
 
 import com.envyful.acaf.api.exception.CommandLoadException;
+import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 
 import java.util.function.BiFunction;
@@ -11,7 +12,7 @@ public interface CommandFactory {
 
     boolean unregisterCommand(Object o);
 
-    void registerInjector(Class<?> parentClass, BiFunction<EntityPlayerMP, String[], ?> function);
+    void registerInjector(Class<?> parentClass, BiFunction<ICommandSender, String[], ?> function);
 
     void unregisterInjector(Class<?> parentClass);
 
