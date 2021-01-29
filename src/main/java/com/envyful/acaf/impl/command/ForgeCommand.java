@@ -53,6 +53,7 @@ public class ForgeCommand extends CommandBase {
 
     public void executeSync(MinecraftServer server, ICommandSender sender, String[] args) {
         if (!this.checkPermission(server, sender)) {
+            //TODO: error message
             return;
         }
 
@@ -64,8 +65,13 @@ public class ForgeCommand extends CommandBase {
         }
 
         for (CommandExecutor executor : this.executors) {
-            if (!executor.canExecute(sender)) {
+            if (!executor.getIdentifier().equals(args[0])) {
                 continue;
+            }
+
+            if (!executor.canExecute(sender)) {
+                //TODO: error message
+                return;
             }
 
             if (executor.getRequiredArgs() == -1 || executor.getRequiredArgs() == args.length) {
