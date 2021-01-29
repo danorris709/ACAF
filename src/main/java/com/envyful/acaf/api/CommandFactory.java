@@ -4,6 +4,7 @@ import com.envyful.acaf.api.exception.CommandLoadException;
 import net.minecraft.entity.player.EntityPlayerMP;
 
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 public interface CommandFactory {
@@ -12,7 +13,7 @@ public interface CommandFactory {
 
     boolean unregisterCommand(Object o);
 
-    void registerInjector(Class<?> parentClass, BiConsumer<EntityPlayerMP, String[]> consumer);
+    void registerInjector(Class<?> parentClass, BiFunction<EntityPlayerMP, String[], ?> consumer);
 
     void unregisterInjector(Class<?> parentClass);
 
