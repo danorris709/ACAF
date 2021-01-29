@@ -9,6 +9,7 @@ import java.util.Arrays;
 
 public class CommandExecutor {
 
+    private final String identifier;
     private final Object commandClass;
     private final Method executor;
     private final boolean executeAsync;
@@ -16,13 +17,18 @@ public class CommandExecutor {
     private final String requiredPermission;
     private final ArgumentInjector<?>[] arguments;
 
-    public CommandExecutor(Object commandClass, Method executor, boolean executeAsync, String requiredPermission, ArgumentInjector<?>[] arguments) {
+    public CommandExecutor(String identifier, Object commandClass, Method executor, boolean executeAsync, String requiredPermission, ArgumentInjector<?>[] arguments) {
+        this.identifier = identifier;
         this.commandClass = commandClass;
         this.executor = executor;
         this.executeAsync = executeAsync;
         this.requiredPermission = requiredPermission;
         this.arguments = arguments;
         this.requiredArgs = this.calculateRequiredArgs();
+    }
+
+    public String getIdentifier() {
+        return this.identifier;
     }
 
     private int calculateRequiredArgs() {
