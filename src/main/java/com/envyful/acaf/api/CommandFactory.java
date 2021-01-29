@@ -11,7 +11,11 @@ public interface CommandFactory {
 
     boolean unregisterCommand(Object o);
 
-    void registerInjector(Class<?> parentClass, BiFunction<ICommandSender, String[], ?> function);
+    default void registerInjector(Class<?> parentClass, BiFunction<ICommandSender, String[], ?> function) {
+        this.registerInjector(parentClass, false, function);
+    }
+
+    void registerInjector(Class<?> parentClass, boolean multipleArgs, BiFunction<ICommandSender, String[], ?> function);
 
     void unregisterInjector(Class<?> parentClass);
 
