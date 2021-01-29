@@ -13,4 +13,6 @@ public @interface CommandProcessor {
 
     int minArgs() default 0;
 
+    boolean executeAsync() default true;
+
 }
