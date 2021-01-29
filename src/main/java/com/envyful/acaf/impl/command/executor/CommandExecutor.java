@@ -33,6 +33,10 @@ public class CommandExecutor {
         return this.arguments.length;
     }
 
+    public boolean isExecuteAsync() {
+        return this.executeAsync;
+    }
+
     public int getRequiredArgs() {
         return this.requiredArgs;
     }
