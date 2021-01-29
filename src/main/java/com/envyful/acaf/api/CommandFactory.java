@@ -2,7 +2,6 @@ package com.envyful.acaf.api;
 
 import com.envyful.acaf.api.exception.CommandLoadException;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.player.EntityPlayerMP;
 
 import java.util.function.BiFunction;
 

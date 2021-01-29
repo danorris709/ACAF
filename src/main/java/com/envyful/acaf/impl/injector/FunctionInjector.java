@@ -1,16 +1,16 @@
 package com.envyful.acaf.impl.injector;
 
 import com.envyful.acaf.api.injector.ArgumentInjector;
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.command.ICommandSender;
 
 import java.util.function.BiFunction;
 
 public class FunctionInjector<T> implements ArgumentInjector<T> {
 
     private final Class<T> superClass;
-    private final BiFunction<EntityPlayerMP, String[], T> function;
+    private final BiFunction<ICommandSender, String[], T> function;
 
-    public FunctionInjector(Class<T> superClass, BiFunction<EntityPlayerMP, String[], T> function) {
+    public FunctionInjector(Class<T> superClass, BiFunction<ICommandSender, String[], T> function) {
         this.superClass = superClass;
         this.function = function;
     }
@@ -21,7 +21,7 @@ public class FunctionInjector<T> implements ArgumentInjector<T> {
     }
 
     @Override
-    public T instantiateClass(EntityPlayerMP sender, String... args) {
+    public T instantiateClass(ICommandSender sender, String... args) {
         return this.function.apply(sender, args);
     }
 }

@@ -9,7 +9,7 @@ import com.envyful.acaf.api.exception.CommandLoadException;
 import com.envyful.acaf.api.injector.ArgumentInjector;
 import com.envyful.acaf.impl.injector.FunctionInjector;
 import com.google.common.collect.Lists;
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.command.ICommandSender;
 
 import java.util.List;
 import java.util.Objects;
@@ -66,7 +66,7 @@ public class ForgeCommandFactory implements CommandFactory {
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
-    public void registerInjector(Class<?> parentClass, BiFunction<EntityPlayerMP, String[], ?> function) {
+    public void registerInjector(Class<?> parentClass, BiFunction<ICommandSender, String[], ?> function) {
         this.registeredInjectors.add(new FunctionInjector(parentClass, function));
     }
 
