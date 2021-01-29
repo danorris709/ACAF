@@ -66,8 +66,8 @@ public class ForgeCommandFactory implements CommandFactory {
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
-    public void registerInjector(Class<?> parentClass, BiFunction<ICommandSender, String[], ?> function) {
-        this.registeredInjectors.add(new FunctionInjector(parentClass, function));
+    public void registerInjector(Class<?> parentClass, boolean multipleArgs, BiFunction<ICommandSender, String[], ?> function) {
+        this.registeredInjectors.add(new FunctionInjector(parentClass, multipleArgs, function));
     }
 
     @Override
