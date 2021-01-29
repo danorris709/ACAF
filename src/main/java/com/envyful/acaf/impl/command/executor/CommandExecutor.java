@@ -41,8 +41,16 @@ public class CommandExecutor {
                 String[] remainingArgs = Arrays.copyOfRange(arguments, i, arguments.length);
 
                 args[i] = argument.instantiateClass(sender, remainingArgs);
+
+                if (args[i] == null) {
+                    return;
+                }
             } else {
                 args[i] = argument.instantiateClass(sender, arguments[i]);
+
+                if (args[i] == null) {
+                    return;
+                }
             }
         }
 
