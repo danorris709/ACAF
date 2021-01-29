@@ -51,6 +51,10 @@ public class ForgeCommand extends CommandBase {
             }
 
             for (CommandExecutor executor : this.executors) {
+                if (!executor.canExecute(sender)) {
+                    continue;
+                }
+
                 if (executor.getRequiredArgs() == -1 || executor.getRequiredArgs() == args.length) {
                     if (!executor.isExecuteAsync()) {
                         //TODO: run on main thread
