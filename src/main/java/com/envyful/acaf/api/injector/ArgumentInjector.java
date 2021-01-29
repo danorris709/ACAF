@@ -6,6 +6,8 @@ public interface ArgumentInjector<T> {
 
     Class<T> getSuperClass();
 
+    boolean doesRequireMultipleArgs();
+
     T instantiateClass(ICommandSender sender, String... arguments);
 
 }
