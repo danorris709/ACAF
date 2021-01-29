@@ -1,7 +1,6 @@
 package com.envyful.acaf.impl.command.executor;
 
 import com.envyful.acaf.api.injector.ArgumentInjector;
-import com.envyful.acaf.util.UtilConcurrency;
 import net.minecraft.command.ICommandSender;
 
 import java.lang.reflect.InvocationTargetException;
@@ -13,6 +12,7 @@ public class CommandExecutor {
     private final Object commandClass;
     private final Method executor;
     private final boolean executeAsync;
+    private final int requiredArgs;
     private final ArgumentInjector<?>[] arguments;
 
     public CommandExecutor(Object commandClass, Method executor, boolean executeAsync, ArgumentInjector<?>[] arguments) {
@@ -20,18 +20,24 @@ public class CommandExecutor {
         this.executor = executor;
         this.executeAsync = executeAsync;
         this.arguments = arguments;
+        this.requiredArgs = this.calculateRequiredArgs();
     }
 
-    public void execute(ICommandSender sender, String[] args) {
-        if (!this.executeAsync) {
-            this.runSync(sender, args);
-            return;
+    private int calculateRequiredArgs() {
+        for (ArgumentInjector<?> argument : this.arguments) {
+            if (argument.doesRequireMultipleArgs()) {
+                return -1;
+            }
         }
 
-        UtilConcurrency.executeAsync(() -> this.runSync(sender, args));
+        return this.arguments.length;
     }
 
-    private void runSync(ICommandSender sender, String[] arguments) {
+    public int getRequiredArgs() {
+        return this.requiredArgs;
+    }
+
+    public boolean execute(ICommandSender sender, String[] arguments) {
         Object[] args = new Object[this.arguments.length];
 
         for (int i = 0; i < this.arguments.length; i++) {
@@ -43,21 +49,24 @@ public class CommandExecutor {
                 args[i] = argument.instantiateClass(sender, remainingArgs);
 
                 if (args[i] == null) {
-                    return;
+                    return false;
                 }
             } else {
                 args[i] = argument.instantiateClass(sender, arguments[i]);
 
                 if (args[i] == null) {
-                    return;
+                    return false;
                 }
             }
         }
 
         try {
             this.executor.invoke(this.commandClass, args);
+            return true;
         } catch (IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         }
+
+        return false;
     }
 }
