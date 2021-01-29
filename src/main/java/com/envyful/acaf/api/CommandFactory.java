@@ -12,7 +12,7 @@ public interface CommandFactory {
 
     boolean unregisterCommand(Object o);
 
-    void registerInjector(Class<?> parentClass, BiConsumer<EntityPlayerMP, String> consumer);
+    void registerInjector(Class<?> parentClass, BiConsumer<EntityPlayerMP, String[]> consumer);
 
     void unregisterInjector(Class<?> parentClass);
 
