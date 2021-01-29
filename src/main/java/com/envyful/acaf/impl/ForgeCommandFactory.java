@@ -36,7 +36,6 @@ public class ForgeCommandFactory implements CommandFactory {
 
         Class<?>[] subCommands = this.getSubCommands(clazz);
 
-
         return false;
     }
 
@@ -81,5 +80,15 @@ public class ForgeCommandFactory implements CommandFactory {
                 iterator.remove();
             }
         }
+    }
+
+    public ArgumentInjector getInjectorFor(Class<?> clazz) {
+        for (ArgumentInjector registeredInjector : this.registeredInjectors) {
+            if (registeredInjector.getSuperClass().isAssignableFrom(clazz)) {
+                return registeredInjector;
+            }
+        }
+
+        return null;
     }
 }
