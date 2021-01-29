@@ -7,17 +7,17 @@ import com.envyful.acaf.api.command.Permissible;
 import com.envyful.acaf.api.command.SubCommands;
 import com.envyful.acaf.api.exception.CommandLoadException;
 import com.envyful.acaf.api.injector.ArgumentInjector;
-import com.envyful.acaf.impl.injector.SupplierInjector;
+import com.envyful.acaf.impl.injector.FunctionInjector;
 import com.google.common.collect.Lists;
+import net.minecraft.entity.player.EntityPlayerMP;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Supplier;
+import java.util.function.BiFunction;
 
 public class ForgeCommandFactory implements CommandFactory {
 
-    private final List<ArgumentInjector> registeredInjectors = Lists.newArrayList();
+    private final List<ArgumentInjector<?>> registeredInjectors = Lists.newArrayList();
 
     @Override
     public boolean registerCommand(Object o) throws CommandLoadException {
@@ -64,26 +64,19 @@ public class ForgeCommandFactory implements CommandFactory {
         return false;
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
-    public void registerInjector(Class<?> parentClass, Supplier<?> supplier) {
-        this.registeredInjectors.add(new SupplierInjector(parentClass, supplier));
+    public void registerInjector(Class<?> parentClass, BiFunction<EntityPlayerMP, String[], ?> function) {
+        this.registeredInjectors.add(new FunctionInjector(parentClass, function));
     }
 
     @Override
     public void unregisterInjector(Class<?> parentClass) {
-        Iterator<ArgumentInjector> iterator = (Iterator<ArgumentInjector>) this.registeredInjectors.iterator();
-
-        while (iterator.hasNext()) {
-            ArgumentInjector next = iterator.next();
-
-            if (Objects.equals(parentClass, next.getSuperClass())) {
-                iterator.remove();
-            }
-        }
+        this.registeredInjectors.removeIf(next -> Objects.equals(parentClass, next.getSuperClass()));
     }
 
-    public ArgumentInjector getInjectorFor(Class<?> clazz) {
-        for (ArgumentInjector registeredInjector : this.registeredInjectors) {
+    public ArgumentInjector<?> getInjectorFor(Class<?> clazz) {
+        for (ArgumentInjector<?> registeredInjector : this.registeredInjectors) {
             if (registeredInjector.getSuperClass().isAssignableFrom(clazz)) {
                 return registeredInjector;
             }
