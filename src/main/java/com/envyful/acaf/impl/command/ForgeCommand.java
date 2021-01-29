@@ -10,10 +10,12 @@ import java.util.List;
 public class ForgeCommand extends CommandBase {
 
     private final String name;
+    private final String basePermission;
     private final List<String> aliases;
 
-    public ForgeCommand(String name, List<String> aliases) {
+    public ForgeCommand(String name, String basePermission, List<String> aliases) {
         this.name = name;
+        this.basePermission = basePermission;
         this.aliases = aliases;
     }
 
@@ -25,6 +27,11 @@ public class ForgeCommand extends CommandBase {
     @Override
     public List<String> getAliases() {
         return this.aliases;
+    }
+
+    @Override
+    public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
+        return sender.canUseCommand(this.getRequiredPermissionLevel(), this.basePermission);
     }
 
     @Override
