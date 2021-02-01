@@ -8,8 +8,14 @@ Usage
 Compiling
 ---------
 
+
 Contributing
 ------------
+If you find any changes or improvements to the API that you think may be beneficial to others then please kindly consider
+making a pull request to merge any changes back into the upstream project.
+
+Please read [`CONTRIBUTION.md`](https://github.com/danorris709/ACAF/blob/master/CONTRIBUTION.md) for all the guidelines that
+need to be followed before contributing.
 
 Links
 -----
