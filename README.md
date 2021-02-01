@@ -9,3 +9,6 @@ An annotation based API for creating commands and sub-commands for pure Forge se
 ## Contributing
 
 ## Links
+
+# License
+ACAF is licensed under the permissive MIT license. Please see [`LICENSE.txt`](https://github.com/danorris709/ACAF/blob/master/LICENSE.txt) for more information.
