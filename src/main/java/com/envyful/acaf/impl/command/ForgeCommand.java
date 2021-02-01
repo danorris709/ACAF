@@ -1,5 +1,6 @@
 package com.envyful.acaf.impl.command;
 
+import com.envyful.acaf.impl.ForgeCommandFactory;
 import com.envyful.acaf.impl.command.executor.CommandExecutor;
 import com.envyful.acaf.util.UtilConcurrency;
 import net.minecraft.command.CommandBase;
@@ -12,13 +13,15 @@ import java.util.List;
 
 public class ForgeCommand extends CommandBase {
 
+    private final ForgeCommandFactory commandFactory;
     private final String name;
     private final String basePermission;
     private final List<String> aliases;
     private final List<CommandExecutor> executors;
     private final List<ForgeCommand> subCommands;
 
-    public ForgeCommand(String name, String basePermission, List<String> aliases, List<CommandExecutor> executors, List<ForgeCommand> subCommands) {
+    public ForgeCommand(ForgeCommandFactory commandFactory, String name, String basePermission, List<String> aliases, List<CommandExecutor> executors, List<ForgeCommand> subCommands) {
+        this.commandFactory = commandFactory;
         this.name = name;
         this.basePermission = basePermission;
         this.aliases = aliases;
