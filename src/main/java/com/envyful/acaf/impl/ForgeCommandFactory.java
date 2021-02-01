@@ -5,12 +5,22 @@ import com.envyful.acaf.api.command.Child;
 import com.envyful.acaf.api.command.Command;
 import com.envyful.acaf.api.command.Permissible;
 import com.envyful.acaf.api.command.SubCommands;
+import com.envyful.acaf.api.command.executor.CommandProcessor;
 import com.envyful.acaf.api.exception.CommandLoadException;
 import com.envyful.acaf.api.injector.ArgumentInjector;
+import com.envyful.acaf.impl.command.ForgeCommand;
+import com.envyful.acaf.impl.command.executor.CommandExecutor;
 import com.envyful.acaf.impl.injector.FunctionInjector;
 import com.google.common.collect.Lists;
+import net.minecraft.command.CommandHandler;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.server.MinecraftServer;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.BiFunction;
@@ -20,11 +30,21 @@ public class ForgeCommandFactory implements CommandFactory {
     private final List<ArgumentInjector<?>> registeredInjectors = Lists.newArrayList();
 
     @Override
-    public boolean registerCommand(Object o) throws CommandLoadException {
-        Class<?> clazz = o.getClass();
-        Command command = clazz.getAnnotation(Command.class);
+    public boolean registerCommand(MinecraftServer server, Object o) throws CommandLoadException {
+        ForgeCommand command = this.createCommand(o.getClass(), o);
+        ((CommandHandler) server.getCommandManager()).registerCommand(command);
+        return true;
+    }
 
-        if (command == null) {
+    private ForgeCommand createCommand(Class<?> clazz) throws CommandLoadException {
+        return this.createCommand(clazz, null);
+    }
+
+    private ForgeCommand createCommand(Class<?> clazz, Object instance) throws CommandLoadException {
+        List<ForgeCommand> subCommands = this.getSubCommands(clazz);
+        Command commandData = clazz.getAnnotation(Command.class);
+
+        if (commandData == null) {
             throw new CommandLoadException(clazz.getSimpleName(), "missing @Command annotation on class!");
         }
 
@@ -34,9 +54,82 @@ public class ForgeCommandFactory implements CommandFactory {
             throw new CommandLoadException(clazz.getSimpleName(), "cannot register child commands as a root command");
         }
 
-        Class<?>[] subCommands = this.getSubCommands(clazz);
+        if (instance  == null) {
+            instance = this.createInstance(clazz);
 
-        return false;
+            if (instance == null) {
+                throw new CommandLoadException(clazz.getSimpleName(), "cannot instantiate sub-command as there's no public constructor");
+            }
+        }
+
+        List<CommandExecutor> subExecutors = Lists.newArrayList();
+
+        for (Method declaredMethod : clazz.getDeclaredMethods()) {
+            CommandProcessor processorData = declaredMethod.getAnnotation(CommandProcessor.class);
+
+            if (processorData == null) {
+                continue;
+            }
+
+            String requiredPermission = this.getPermission(declaredMethod);
+            List<ArgumentInjector<?>> arguments = Lists.newArrayList();
+
+            for (Class<?> parameterType : declaredMethod.getParameterTypes()) {
+                arguments.add(this.getInjectorFor(parameterType));
+            }
+
+            subExecutors.add(new CommandExecutor(processorData.value(), instance, declaredMethod,
+                    processorData.executeAsync(), requiredPermission, arguments.toArray(new ArgumentInjector<?>[0])));
+        }
+
+        return new ForgeCommand(commandData.value(), defaultPermission, Arrays.asList(commandData.aliases()), subExecutors, subCommands);
+    }
+
+    private String getPermission(Method method) {
+        Permissible permissible = method.getAnnotation(Permissible.class);
+
+        if (permissible == null) {
+            return "";
+        }
+
+        return permissible.value();
+    }
+
+    private Object createInstance(Class<?> clazz) {
+        if (clazz.getConstructors().length == 0) {
+            try {
+                return clazz.newInstance();
+            } catch (InstantiationException | IllegalAccessException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        for (Constructor<?> constructor : clazz.getConstructors()) {
+            List<Object> objects = Lists.newArrayList();
+
+            for (Class<?> parameterType : constructor.getParameterTypes()) {
+                Object o = this.getInjectorFor(parameterType).instantiateClass(null);
+
+                if (o == null) {
+                    break;
+                }
+
+                objects.add(o);
+            }
+
+            if (objects.size() != constructor.getParameterTypes().length) {
+                continue;
+            }
+
+            try {
+                return constructor.newInstance(objects.toArray(new Object[0]));
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return null;
     }
 
     private String getDefaultPermission(Class<?> clazz) {
@@ -49,18 +142,24 @@ public class ForgeCommandFactory implements CommandFactory {
         return permissible.value();
     }
 
-    private Class<?>[] getSubCommands(Class<?> clazz) {
+    private List<ForgeCommand> getSubCommands(Class<?> clazz) {
         SubCommands subCommands = clazz.getAnnotation(SubCommands.class);
 
         if (subCommands == null) {
-            return new Class<?>[0];
+            return Collections.emptyList();
         }
 
-        return subCommands.value();
+        List<ForgeCommand> commands = Lists.newArrayList();
+
+        for (Class<?> subClazz : subCommands.value()) {
+            commands.add(this.createCommand(subClazz));
+        }
+
+        return commands;
     }
 
     @Override
-    public boolean unregisterCommand(Object o) {
+    public boolean unregisterCommand(MinecraftServer server, Object o) {
         return false;
     }
 
