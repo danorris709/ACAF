@@ -20,4 +20,6 @@ public interface CommandFactory {
 
     void unregisterInjector(Class<?> parentClass);
 
+    void executeSync(Runnable runnable);
+
 }
