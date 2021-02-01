@@ -72,7 +72,7 @@ public class ForgeCommand extends CommandBase {
         }
 
         for (CommandExecutor executor : this.executors) {
-            if (!executor.getIdentifier().equals(args[0])) {
+            if (!executor.getIdentifier().equals(args[0]) && !executor.getIdentifier().isEmpty()) {
                 continue;
             }
 
