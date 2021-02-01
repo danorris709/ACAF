@@ -15,6 +15,7 @@ import com.envyful.acaf.impl.thread.ServerTickListener;
 import com.google.common.collect.Lists;
 import net.minecraft.command.CommandHandler;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.MinecraftForge;
 
@@ -33,6 +34,8 @@ public class ForgeCommandFactory implements CommandFactory {
     private final ServerTickListener tickListener = new ServerTickListener();
 
     public ForgeCommandFactory() {
+        this.registerInjector(EntityPlayerMP.class, (sender, args) -> sender.getServer().getPlayerList().getPlayerByUsername(args[0]));
+
         MinecraftForge.EVENT_BUS.register(this.tickListener);
     }
 
