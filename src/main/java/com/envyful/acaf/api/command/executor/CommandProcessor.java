@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface CommandProcessor {
 
-    String value();
+    String value() default "";
 
     int minArgs() default 0;
 
