@@ -89,7 +89,7 @@ public class ForgeCommandFactory implements CommandFactory {
                     processorData.executeAsync(), requiredPermission, arguments.toArray(new ArgumentInjector<?>[0])));
         }
 
-        return new ForgeCommand(commandData.value(), defaultPermission, Arrays.asList(commandData.aliases()), subExecutors, subCommands);
+        return new ForgeCommand(this, commandData.value(), defaultPermission, Arrays.asList(commandData.aliases()), subExecutors, subCommands);
     }
 
     private String getPermission(Method method) {
@@ -105,8 +105,8 @@ public class ForgeCommandFactory implements CommandFactory {
     private Object createInstance(Class<?> clazz) {
         if (clazz.getConstructors().length == 0) {
             try {
-                return clazz.newInstance();
-            } catch (InstantiationException | IllegalAccessException e) {
+                return clazz.getConstructor().newInstance();
+            } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
                 e.printStackTrace();
                 return null;
             }
@@ -191,7 +191,6 @@ public class ForgeCommandFactory implements CommandFactory {
         return null;
     }
 
-    @Override
     public void executeSync(Runnable runnable) {
         this.tickListener.addTask(runnable);
     }
