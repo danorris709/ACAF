@@ -7,11 +7,15 @@ import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
 
 import java.util.Arrays;
 import java.util.List;
 
 public class ForgeCommand extends CommandBase {
+
+    private static final ITextComponent NO_PERMISSION = new TextComponentString("§cNo permission!");
 
     private final ForgeCommandFactory commandFactory;
     private final String name;
@@ -56,7 +60,7 @@ public class ForgeCommand extends CommandBase {
 
     public void executeSync(MinecraftServer server, ICommandSender sender, String[] args) {
         if (!this.checkPermission(server, sender)) {
-            //TODO: error message
+            sender.sendMessage(NO_PERMISSION);
             return;
         }
 
@@ -73,7 +77,7 @@ public class ForgeCommand extends CommandBase {
             }
 
             if (!executor.canExecute(sender)) {
-                //TODO: error message
+                sender.sendMessage(NO_PERMISSION);
                 return;
             }
 
