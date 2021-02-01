@@ -79,7 +79,7 @@ public class ForgeCommand extends CommandBase {
 
             if (executor.getRequiredArgs() == -1 || executor.getRequiredArgs() == args.length) {
                 if (!executor.isExecuteAsync()) {
-                    //TODO: run on main thread
+                    this.commandFactory.executeSync(() -> executor.execute(sender, args));
                     break;
                 }
 
