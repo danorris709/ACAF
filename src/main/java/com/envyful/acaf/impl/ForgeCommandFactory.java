@@ -11,10 +11,12 @@ import com.envyful.acaf.api.injector.ArgumentInjector;
 import com.envyful.acaf.impl.command.ForgeCommand;
 import com.envyful.acaf.impl.command.executor.CommandExecutor;
 import com.envyful.acaf.impl.injector.FunctionInjector;
+import com.envyful.acaf.impl.thread.ServerTickListener;
 import com.google.common.collect.Lists;
 import net.minecraft.command.CommandHandler;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
+import net.minecraftforge.common.MinecraftForge;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -28,6 +30,11 @@ import java.util.function.BiFunction;
 public class ForgeCommandFactory implements CommandFactory {
 
     private final List<ArgumentInjector<?>> registeredInjectors = Lists.newArrayList();
+    private final ServerTickListener tickListener = new ServerTickListener();
+
+    public ForgeCommandFactory() {
+        MinecraftForge.EVENT_BUS.register(this.tickListener);
+    }
 
     @Override
     public boolean registerCommand(MinecraftServer server, Object o) throws CommandLoadException {
@@ -182,5 +189,10 @@ public class ForgeCommandFactory implements CommandFactory {
         }
 
         return null;
+    }
+
+    @Override
+    public void executeSync(Runnable runnable) {
+        this.tickListener.addTask(runnable);
     }
 }
