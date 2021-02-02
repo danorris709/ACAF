@@ -6,28 +6,28 @@ import net.minecraft.entity.player.EntityPlayer;
 
 import java.util.Map;
 
-public enum Sender {
+public enum SenderType {
 
     CONSOLE(ICommandSender.class),
     PLAYER(EntityPlayer.class),
 
     ;
 
-    private static final Map<Class<?>, Sender> SENDERS = Maps.newHashMap();
+    private static final Map<Class<?>, SenderType> SENDERS = Maps.newHashMap();
 
     static {
-        for (Sender value : values()) {
+        for (SenderType value : values()) {
             SENDERS.put(value.clazz, value);
         }
     }
 
     private final Class<?> clazz;
 
-    Sender(Class<?> clazz) {
+    SenderType(Class<?> clazz) {
         this.clazz = clazz;
     }
 
-    public static Sender get(Class<?> clazz) {
+    public static SenderType get(Class<?> clazz) {
         return SENDERS.get(clazz);
     }
 }
