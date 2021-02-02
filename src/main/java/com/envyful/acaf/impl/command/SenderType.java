@@ -10,7 +10,7 @@ import java.util.Map;
 public enum SenderType {
 
     CONSOLE(ICommandSender.class),
-    PLAYER(EntityPlayer.class, EntityPlayerMP.class),
+    PLAYER(EntityPlayerMP.class, EntityPlayer.class),
 
     ;
 

@@ -72,22 +72,29 @@ public class ForgeCommand extends CommandBase {
         }
 
         for (CommandExecutor executor : this.executors) {
+            if (executor.getIdentifier().isEmpty() && args.length == 0) {
+                this.attemptRun(executor, sender, args);
+                return;
+            }
+
             if (!executor.getIdentifier().equals(args[0]) && !executor.getIdentifier().isEmpty()) {
                 continue;
             }
 
-            if (!executor.canExecute(sender)) {
-                sender.sendMessage(NO_PERMISSION);
+            this.attemptRun(executor, sender, args);
+        }
+    }
+
+    private void attemptRun(CommandExecutor executor, ICommandSender sender, String[] args) {
+        if (!executor.canExecute(sender)) {
+            sender.sendMessage(NO_PERMISSION);
+            return;
+        }
+
+        if (executor.getRequiredArgs() == -1 || executor.getRequiredArgs() == args.length) {
+            if (!executor.isExecuteAsync()) {
+                this.commandFactory.executeSync(() -> executor.execute(sender, args));
                 return;
-            }
-
-            if (executor.getRequiredArgs() == -1 || executor.getRequiredArgs() == args.length) {
-                if (!executor.isExecuteAsync()) {
-                    this.commandFactory.executeSync(() -> executor.execute(sender, args));
-                    break;
-                }
-
-                executor.execute(sender, args);
             }
         }
     }

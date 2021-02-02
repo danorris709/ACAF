@@ -11,6 +11,7 @@ import java.util.Arrays;
 public class CommandExecutor {
 
     private final String identifier;
+    private final int senderPosition;
     private final SenderType sender;
     private final Object commandClass;
     private final Method executor;
@@ -19,8 +20,10 @@ public class CommandExecutor {
     private final String requiredPermission;
     private final ArgumentInjector<?>[] arguments;
 
-    public CommandExecutor(String identifier, SenderType sender, Object commandClass, Method executor, boolean executeAsync, String requiredPermission, ArgumentInjector<?>[] arguments) {
+    public CommandExecutor(String identifier, SenderType sender, int senderPosition, Object commandClass, Method executor,
+                           boolean executeAsync, String requiredPermission, ArgumentInjector<?>[] arguments) {
         this.identifier = identifier;
+        this.senderPosition = senderPosition;
         this.sender = sender;
         this.commandClass = commandClass;
         this.executor = executor;
@@ -65,9 +68,13 @@ public class CommandExecutor {
     }
 
     public boolean execute(ICommandSender sender, String[] arguments) {
-        Object[] args = new Object[this.arguments.length];
+        Object[] args = new Object[Math.max(1, arguments.length)];
 
         for (int i = 0; i < this.arguments.length; i++) {
+            if (i == this.senderPosition) {
+                continue;
+            }
+
             ArgumentInjector<?> argument = this.arguments[i];
 
             if (argument.doesRequireMultipleArgs()) {
@@ -86,6 +93,8 @@ public class CommandExecutor {
                 }
             }
         }
+
+        args[this.senderPosition] = this.sender.getType().cast(sender);
 
         try {
             this.executor.invoke(this.commandClass, args);
