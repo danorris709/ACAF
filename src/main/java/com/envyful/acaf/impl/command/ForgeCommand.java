@@ -96,6 +96,8 @@ public class ForgeCommand extends CommandBase {
                 this.commandFactory.executeSync(() -> executor.execute(sender, args));
                 return;
             }
+
+            executor.execute(sender, args);
         }
     }
 
