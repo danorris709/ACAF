@@ -89,10 +89,12 @@ public class ForgeCommandFactory implements CommandFactory {
             Class<?>[] parameterTypes = declaredMethod.getParameterTypes();
             Annotation[][] annotations = declaredMethod.getParameterAnnotations();
             SenderType senderType = null;
+            int senderPosition = -1;
 
             for (int i = 0; i < parameterTypes.length; i++) {
                 if (annotations[i][0] instanceof Sender) {
                     senderType = SenderType.get(parameterTypes[i]);
+                    senderPosition = i;
                 } else {
                     arguments.add(this.getInjectorFor(parameterTypes[i]));
                 }
@@ -102,7 +104,7 @@ public class ForgeCommandFactory implements CommandFactory {
                 throw new CommandLoadException(clazz.getSimpleName(), "Command must have a sender!");
             }
 
-            subExecutors.add(new CommandExecutor(processorData.value(), senderType, instance, declaredMethod,
+            subExecutors.add(new CommandExecutor(processorData.value(), senderType, senderPosition, instance, declaredMethod,
                     processorData.executeAsync(), requiredPermission, arguments.toArray(new ArgumentInjector<?>[0])));
         }
 
