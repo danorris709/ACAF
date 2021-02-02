@@ -1,7 +1,7 @@
 package com.envyful.acaf.impl.command.executor;
 
 import com.envyful.acaf.api.injector.ArgumentInjector;
-import com.envyful.acaf.impl.command.Sender;
+import com.envyful.acaf.impl.command.SenderType;
 import net.minecraft.command.ICommandSender;
 
 import java.lang.reflect.InvocationTargetException;
@@ -11,7 +11,7 @@ import java.util.Arrays;
 public class CommandExecutor {
 
     private final String identifier;
-    private final Sender sender;
+    private final SenderType sender;
     private final Object commandClass;
     private final Method executor;
     private final boolean executeAsync;
@@ -19,7 +19,7 @@ public class CommandExecutor {
     private final String requiredPermission;
     private final ArgumentInjector<?>[] arguments;
 
-    public CommandExecutor(String identifier, Sender sender, Object commandClass, Method executor, boolean executeAsync, String requiredPermission, ArgumentInjector<?>[] arguments) {
+    public CommandExecutor(String identifier, SenderType sender, Object commandClass, Method executor, boolean executeAsync, String requiredPermission, ArgumentInjector<?>[] arguments) {
         this.identifier = identifier;
         this.sender = sender;
         this.commandClass = commandClass;
@@ -34,7 +34,7 @@ public class CommandExecutor {
         return this.identifier;
     }
 
-    public Sender getSender() {
+    public SenderType getSender() {
         return this.sender;
     }
 

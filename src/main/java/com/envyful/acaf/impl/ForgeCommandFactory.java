@@ -6,9 +6,11 @@ import com.envyful.acaf.api.command.Command;
 import com.envyful.acaf.api.command.Permissible;
 import com.envyful.acaf.api.command.SubCommands;
 import com.envyful.acaf.api.command.executor.CommandProcessor;
+import com.envyful.acaf.api.command.executor.Sender;
 import com.envyful.acaf.api.exception.CommandLoadException;
 import com.envyful.acaf.api.injector.ArgumentInjector;
 import com.envyful.acaf.impl.command.ForgeCommand;
+import com.envyful.acaf.impl.command.SenderType;
 import com.envyful.acaf.impl.command.executor.CommandExecutor;
 import com.envyful.acaf.impl.injector.FunctionInjector;
 import com.envyful.acaf.impl.thread.ServerTickListener;
@@ -19,6 +21,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.MinecraftForge;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -83,12 +86,23 @@ public class ForgeCommandFactory implements CommandFactory {
 
             String requiredPermission = this.getPermission(declaredMethod);
             List<ArgumentInjector<?>> arguments = Lists.newArrayList();
+            Class<?>[] parameterTypes = declaredMethod.getParameterTypes();
+            Annotation[][] annotations = declaredMethod.getParameterAnnotations();
+            SenderType senderType = null;
 
-            for (Class<?> parameterType : declaredMethod.getParameterTypes()) {
-                arguments.add(this.getInjectorFor(parameterType));
+            for (int i = 0; i < parameterTypes.length; i++) {
+                if (annotations[i][0] instanceof Sender) {
+                    senderType = SenderType.get(parameterTypes[i]);
+                } else {
+                    arguments.add(this.getInjectorFor(parameterTypes[i]));
+                }
             }
 
-            subExecutors.add(new CommandExecutor(processorData.value(), instance, declaredMethod,
+            if (senderType == null) {
+                throw new CommandLoadException(clazz.getSimpleName(), "Command must have a sender!");
+            }
+
+            subExecutors.add(new CommandExecutor(processorData.value(), senderType, instance, declaredMethod,
                     processorData.executeAsync(), requiredPermission, arguments.toArray(new ArgumentInjector<?>[0])));
         }
 
