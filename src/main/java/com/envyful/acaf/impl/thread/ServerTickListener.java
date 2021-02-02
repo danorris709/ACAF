@@ -15,6 +15,8 @@ public class ServerTickListener {
         for (Runnable task : this.tasks) {
             task.run();
         }
+
+        this.tasks.clear();
     }
 
     public void addTask(Runnable runnable) {
