@@ -11,6 +11,4 @@ public @interface Argument {
 
     boolean tabComplete() default false;
 
-    Class<?> tabCompletionHandler();
-
 }
