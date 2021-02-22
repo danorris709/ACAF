@@ -70,15 +70,16 @@ public class CommandExecutor {
     public boolean execute(ICommandSender sender, String[] arguments) {
         Object[] args = new Object[Math.max(1, arguments.length)];
 
-        for (int i = 0; i < this.arguments.length; i++) {
+        for (int i = 0; i < (this.arguments.length + 1); i++) {
             if (i == this.senderPosition) {
                 continue;
             }
 
-            ArgumentInjector<?> argument = this.arguments[i];
+            int position = i > this.senderPosition ? i - 1 : i;
+            ArgumentInjector<?> argument = this.arguments[position];
 
             if (argument.doesRequireMultipleArgs()) {
-                String[] remainingArgs = Arrays.copyOfRange(arguments, i, arguments.length);
+                String[] remainingArgs = Arrays.copyOfRange(arguments, position, arguments.length);
 
                 args[i] = argument.instantiateClass(sender, remainingArgs);
 
@@ -86,9 +87,9 @@ public class CommandExecutor {
                     return false;
                 }
             } else {
-                args[i] = argument.instantiateClass(sender, arguments[i]);
+                args[position] = argument.instantiateClass(sender, arguments[position]);
 
-                if (args[i] == null) {
+                if (args[position] == null) {
                     return false;
                 }
             }
@@ -100,7 +101,7 @@ public class CommandExecutor {
             this.executor.invoke(this.commandClass, args);
             return true;
         } catch (IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
 
         return false;

@@ -77,28 +77,38 @@ public class ForgeCommand extends CommandBase {
                 return;
             }
 
-            if (!executor.getIdentifier().equals(args[0]) && !executor.getIdentifier().isEmpty()) {
-                continue;
+            if (!executor.getIdentifier().equalsIgnoreCase(args[0])) {
+                if ((!executor.getIdentifier().isEmpty() && args[0].isEmpty()) || (executor.getIdentifier().isEmpty() && !args[0].isEmpty())) {
+                    continue;
+                }
             }
 
-            this.attemptRun(executor, sender, args);
-        }
-    }
-
-    private void attemptRun(CommandExecutor executor, ICommandSender sender, String[] args) {
-        if (!executor.canExecute(sender)) {
-            sender.sendMessage(NO_PERMISSION);
-            return;
-        }
-
-        if (executor.getRequiredArgs() == -1 || executor.getRequiredArgs() == args.length) {
-            if (!executor.isExecuteAsync()) {
-                this.commandFactory.executeSync(() -> executor.execute(sender, args));
+            if (this.attemptRun(executor, sender, args)) {
                 return;
             }
-
-            executor.execute(sender, args);
         }
+
+        this.getUsage(sender);
+    }
+
+    private boolean attemptRun(CommandExecutor executor, ICommandSender sender, String[] args) {
+        if (!executor.canExecute(sender)) {
+            sender.sendMessage(NO_PERMISSION);
+            return true;
+        }
+
+        String[] newArgs = Arrays.copyOfRange(args, 0, args.length - 1);
+
+        if (executor.getRequiredArgs() == -1 || executor.getRequiredArgs() == newArgs.length) {
+            if (!executor.isExecuteAsync()) {
+                this.commandFactory.executeSync(() -> executor.execute(sender, newArgs));
+                return true;
+            }
+
+            return executor.execute(sender, newArgs);
+        }
+
+        return false;
     }
 
     private boolean fitsCommand(String arg, ForgeCommand subCommand) {
