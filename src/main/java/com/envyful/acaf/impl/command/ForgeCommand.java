@@ -95,9 +95,18 @@ public class ForgeCommand extends CommandBase {
             return true;
         }
 
+        if (executor.getRequiredArgs() == -1 || executor.getRequiredArgs() == 0) {
+            if (!executor.isExecuteAsync()) {
+                this.commandFactory.executeSync(() -> executor.execute(sender, args));
+                return true;
+            }
+
+            return executor.execute(sender, args);
+        }
+
         String[] newArgs = Arrays.copyOfRange(args, 0, args.length - 1);
 
-        if (executor.getRequiredArgs() == -1 || executor.getRequiredArgs() == newArgs.length) {
+        if (executor.getRequiredArgs() == newArgs.length) {
             if (!executor.isExecuteAsync()) {
                 this.commandFactory.executeSync(() -> executor.execute(sender, newArgs));
                 return true;
